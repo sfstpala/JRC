@@ -19,11 +19,12 @@ class App (object):
 
     static = Static()
     messages = []
+    template = open(os.path.join(os.path.split(os.path.realpath(__file__))[0],
+        "views", "index.html")).read()
 
     @cherrypy.expose
     def index(self):
-        return open(os.path.join(os.path.split(os.path.realpath(__file__))[0],
-            "views", "index.html")).read()
+        return self.template
 
     @cherrypy.expose
     def post_message(self, user="", message="", last_atime="0"):
