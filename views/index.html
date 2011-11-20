@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Change This Text</title>
+        <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700' 
+            rel='stylesheet' type='text/css'>
+        <style>
+            body {
+                background: #222;
+                color: #eee;
+                font-size: 21px;
+            }
+            * {
+                font-family: 'Ubuntu Mono', monospace;
+            }
+            section.chat {
+                position: absolute;
+                bottom: 116px;
+                left: 0;
+                right: 0;
+                top: 0;
+                overflow-y: scroll;
+                padding: 12px;
+            }
+            section.input {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #333;
+                height: 82px;
+            }
+            section.info {
+                position: absolute;
+                bottom: 82px;
+                left: 0;
+                right: 0;
+                color: #111;
+                background: #f64;
+                height: 28px;
+                font-size: 15px;
+                padding: 8px 12px 0px 12px;
+            }
+            section.input input {
+                border: none;
+                outline: none;
+                position: absolute;
+                color: #eee;
+                background: none;
+                bottom: 20px;
+                left: 0;
+                right: 0;
+                height: 58px;
+                padding: 0 18px 0 18px;
+                font-size: 21px;
+            }
+            input.username {
+                border: none;
+                outline: none;
+                background: none;
+                color: #111;
+                font-size: 15px;
+                font-weight: bold;
+                border-bottom: 1px dashed #222;
+            }
+            div.message span {
+                margin-right: 12px;
+            }
+            div.message.system {
+                color: #777;
+            }
+            div.message span.time {
+                color: #999;
+            }
+            div.message span.user {
+                font-weight: bold;
+            }
+            span.about {
+                padding-top: 2px;
+                float: right;
+            }
+            ::-webkit-scrollbar {
+                width: 12px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #f64;
+            }
+        </style>
+        <script src="/static/jquery.min.js"></script>
+        <script>
+            $(function () {
+                var add_message = function (message, user, time) {
+                    $("section.chat").append("<div class=\"message\">" +
+                        "<span class=\"time\">" + time + "</span>" +
+                        "<span class=\"user\">" + user + ":</span>" +
+                        "<span class=\"message\">" + message + "</span>" +
+                        "</div>"
+                    );
+                };
+                var add_system_message = function (message, user, time) {
+                    $("section.chat").append("<div class=\"message system\">" +
+                        message +
+                        "</div>"
+                    );
+                };
+                function scroll_down () {
+                    $("section.chat").prop({scrollTop:
+                            $("section.chat").prop("scrollHeight") + 100000 });
+                    $("section.input input").focus();
+                }
+                var last_atime = 0;
+                var send_message = function (message, user) {
+                    $.get("/post_message", {"message": message,
+                        "user": user, "last_atime": last_atime},
+                        function (response) {
+                            for (i in response) {
+                                last_atime = response[i][0];
+                                add_message(response[i][3],
+                                    response[i][2],
+                                    response[i][1]);
+                            }
+                        }
+                    );
+                };
+                var update = function () {
+                    $.get("/read_messages", {"last_atime": last_atime},
+                        function (response) {
+                            for (i in response) {
+                                last_atime = response[i][0];
+                                add_message(response[i][3],
+                                    response[i][2],
+                                    response[i][1]);
+                            }
+                            if (response.length == 0) {
+                                setTimeout(update, 5000);
+                            } else {
+                                scroll_down();
+                                setTimeout(update, 1000);
+                            }
+                        }
+                    );
+                };
+                $("section.input input").keydown(function (e) {
+                    if (e.keyCode === 13) {
+                        var user = $("input.username").val();
+                        user = $('<div></div>').text(user).html();
+                        send_message($(this).val(), user);
+                        $(this).val("");
+                        setTimeout(scroll_down, 100);
+                    }
+                });
+                add_system_message("welcome to this crazy chat");
+                add_system_message("don't forget to change your username");
+                update();
+            });
+        </script>
+        <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700' 
+            rel='stylesheet' type='text/css'>
+    </head>
+    <section class="chat">
+    </section>
+    <section class="info">
+        username: <input type="text" value="anonymous" class="username">
+        <span class="about">change this text</span>
+    </section>
+    <section class="input">
+        <input type="text" placeholder="type here...">
+    </section>
+</html>
