@@ -1,0 +1,10 @@
+In order to run this, type the following commands:
+
+    sudo apt-get install python-cherrypy3
+    python chat.py
+
+Then go to
+
+    http://localhost:21211/
+
+You can change the port number at the bottom of the the chat.py file.
