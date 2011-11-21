@@ -55,6 +55,7 @@
                 left: 0;
                 right: 0;
                 height: 58px;
+                width: 90%;
                 padding: 0 18px 0 18px;
                 font-size: 21px;
             }
@@ -113,7 +114,7 @@
                 };
                 function scroll_down () {
                     $("section.chat").prop({scrollTop:
-                            $("section.chat").prop("scrollHeight") + 100000 });
+                            $("section.chat").prop("scrollHeight") + 1000000000 });
                     $("section.input input").focus();
                 }
                 var last_atime = 0;
@@ -149,7 +150,7 @@
                     );
                 };
                 $("section.input input").keydown(function (e) {
-                    if (e.keyCode === 13) {
+                    if ((e.keyCode === 13) && $(this).val() != "") {
                         var user = $("input.username").val();
                         user = $('<div></div>').text(user).html();
                         send_message($(this).val(), user);
