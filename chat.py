@@ -28,14 +28,15 @@ class App (object):
 
     @cherrypy.expose
     def post_message(self, user="", message="", last_atime="0"):
-        if message.strip():
-            self.messages.append((int(time.time() * 10000),
-                time.strftime("%H:%M"), self.safe(user), self.safe(message)))
-            if len(self.messages) > 100:
-                self.messages = self.messages[-100:]
-        cherrypy.response.headers["Content-Type"] = "application/json"
-        return json.dumps([i for i in self.messages
-            if i[0] > int(last_atime)]).encode()
+        if cherrypy.request.method == "POST":
+            if message.strip():
+                self.messages.append((int(time.time() * 10000),
+                    time.strftime("%H:%M"), self.safe(user), self.safe(message)))
+                if len(self.messages) > 100:
+                    self.messages = self.messages[-100:]
+            cherrypy.response.headers["Content-Type"] = "application/json"
+            return json.dumps([i for i in self.messages
+                if i[0] > int(last_atime)]).encode()
 
     @cherrypy.expose
     def read_messages(self, last_atime="0"):
